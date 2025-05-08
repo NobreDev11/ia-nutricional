@@ -16,7 +16,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchPerfil = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/usuarios/perfil', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/usuarios/perfil`, {
           withCredentials: true
         });
         setUsuario(response.data.usuario);
@@ -30,7 +30,7 @@ function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/usuarios/logout', {}, { withCredentials: true });
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/usuarios/logout`, {}, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       console.error('Erro ao fazer logout:', err);
@@ -44,7 +44,7 @@ function DashboardPage() {
   const handleSalvar = async () => {
     try {
       const response = await axios.put(
-        'http://localhost:5000/api/usuarios/atualizar',
+        `${process.env.REACT_APP_API_URL}/api/usuarios/atualizar`,
         form,
         { withCredentials: true }
       );
