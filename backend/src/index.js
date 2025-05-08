@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: true, // permite qualquer origem temporariamente
   credentials: true
 }));
 app.use(express.json());
@@ -24,9 +24,11 @@ mongoose.connect('mongodb+srv://admin:Vyh4843Mp1107@cluster0.uv8tm9d.mongodb.net
 })
 .then(() => {
   console.log('✅ Conectado ao MongoDB Atlas');
-  // Inicia o servidor somente após conexão bem-sucedida
-  app.listen(5000, () => {
-    console.log('🚀 Servidor rodando em http://localhost:5000');
+
+  // Usar porta do ambiente (Render exige isso)
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
   });
 })
 .catch(err => {
