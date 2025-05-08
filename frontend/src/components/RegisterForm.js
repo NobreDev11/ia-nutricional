@@ -22,7 +22,11 @@ function RegisterForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/usuarios/login`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/usuarios/cadastro`,
+        formData,
+        { withCredentials: true }
+      );
       alert(response.data.message || 'Cadastro realizado com sucesso!');
       navigate('/login');
     } catch (error) {
