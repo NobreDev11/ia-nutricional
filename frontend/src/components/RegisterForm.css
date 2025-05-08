@@ -1,0 +1,55 @@
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #007f8c, #00bfa6); /* Tons do mar do Caribe */
+  }
+  
+  .login-form, .register-form {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .login-form h2, .register-form h2 {
+    text-align: center;
+    color: #007f8c;
+  }
+  
+  input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  button {
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  button:hover {
+    background-color: #007f8c;
+  }
+  
+  .btn-secundario {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .erro {
+    color: red;
+    text-align: center;
+  }
+  
