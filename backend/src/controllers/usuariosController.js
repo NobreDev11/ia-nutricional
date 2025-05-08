@@ -2,21 +2,21 @@ const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Cadastrar usuário
 const cadastrarUsuario = async (req, res) => {
   try {
     const { nome, email, senha, altura, peso, dataNascimento, sexo } = req.body;
 
-    const usuarioExistente = await Usuario.findOne({ email });
-    if (usuarioExistente) {
-      return res.status(400).json({ error: 'Usuário já cadastrado.' });
+    const emailExistente = await Usuario.findOne({ email });
+    if (emailExistente) {
+      return res.status(400).json({ error: 'Email já cadastrado.' });
     }
 
-    const senhaHash = await bcrypt.hash(senha, 10);
-
+    const senhaCriptografada = await bcrypt.hash(senha, 10);
     const novoUsuario = new Usuario({
       nome,
       email,
-      senha: senhaHash,
+      senha: senhaCriptografada,
       altura,
       peso,
       dataNascimento,
@@ -24,18 +24,19 @@ const cadastrarUsuario = async (req, res) => {
     });
 
     await novoUsuario.save();
-    res.status(201).json({ message: 'Usuário cadastrado com sucesso.' });
+    res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
   } catch (error) {
-    console.error('Erro no cadastro:', error);
-    res.status(500).json({ error: 'Erro ao cadastrar usuário.' });
+    console.error('Erro ao cadastrar:', error);
+    res.status(500).json({ error: 'Erro interno ao cadastrar.' });
   }
 };
 
+// Login do usuário
 const loginUsuario = async (req, res) => {
   try {
     const { email, senha } = req.body;
-
     const usuario = await Usuario.findOne({ email });
+
     if (!usuario) {
       return res.status(401).json({ error: 'Usuário não encontrado.' });
     }
@@ -46,15 +47,7 @@ const loginUsuario = async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: usuario._id,
-        nome: usuario.nome,
-        email: usuario.email,
-        altura: usuario.altura,
-        peso: usuario.peso,
-        dataNascimento: usuario.dataNascimento,
-        sexo: usuario.sexo
-      },
+      { id: usuario._id, nome: usuario.nome, email: usuario.email },
       process.env.JWT_SECRET || 'segredo123',
       { expiresIn: '7d' }
     );
@@ -62,7 +55,7 @@ const loginUsuario = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       sameSite: 'Lax',
-      secure: false
+      secure: true // Importante para produção com HTTPS
     });
 
     res.json({ message: 'Login realizado com sucesso!' });
@@ -72,50 +65,42 @@ const loginUsuario = async (req, res) => {
   }
 };
 
+// Perfil do usuário autenticado
+const perfilUsuario = async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.usuario.id).select('-senha');
+    res.json({ usuario });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar perfil.' });
+  }
+};
+
+// Atualizar perfil
 const atualizarPerfil = async (req, res) => {
   try {
-    const { id } = req.usuario;
-
+    const atualizacao = req.body;
     const usuarioAtualizado = await Usuario.findByIdAndUpdate(
-      id,
-      {
-        altura: req.body.altura,
-        peso: req.body.peso,
-        dataNascimento: req.body.dataNascimento,
-        sexo: req.body.sexo
-      },
+      req.usuario.id,
+      atualizacao,
       { new: true }
-    );
-
-    const novoToken = jwt.sign(
-      {
-        id: usuarioAtualizado._id,
-        nome: usuarioAtualizado.nome,
-        email: usuarioAtualizado.email,
-        altura: usuarioAtualizado.altura,
-        peso: usuarioAtualizado.peso,
-        dataNascimento: usuarioAtualizado.dataNascimento,
-        sexo: usuarioAtualizado.sexo
-      },
-      process.env.JWT_SECRET || 'segredo123',
-      { expiresIn: '7d' }
-    );
-
-    res.cookie('token', novoToken, {
-      httpOnly: true,
-      sameSite: 'Lax',
-      secure: false
-    });
+    ).select('-senha');
 
     res.json({ message: 'Perfil atualizado com sucesso!', usuarioAtualizado });
   } catch (error) {
-    console.error('Erro ao atualizar perfil:', error);
     res.status(500).json({ error: 'Erro ao atualizar perfil.' });
   }
+};
+
+// Logout
+const logoutUsuario = (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logout efetuado com sucesso!' });
 };
 
 module.exports = {
   cadastrarUsuario,
   loginUsuario,
-  atualizarPerfil
+  perfilUsuario,
+  atualizarPerfil,
+  logoutUsuario
 };
